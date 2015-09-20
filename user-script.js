@@ -8,4 +8,9 @@
 // ==/UserScript==
 
 // jQuery UI for fade out
-$('head').append("<script src='http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.5/jquery-ui.min.js'></script>")
+
+var baseUrl = 'https://raw.githubusercontent.com/svallory/ChatControl/master';
+
+$('<link rel="stylesheet" href="'+baseUrl+'/dist/ecci.css" />').appendTo('head')
+$.getScript(baseUrl + '/dist/global.js')
+$.getScript(baseUrl + '/dist/ticket.js')
