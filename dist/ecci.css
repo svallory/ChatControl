@@ -4,6 +4,10 @@
   top: 10px;
 }
 
+#ecci-buttons button {
+  margin-right: 10px;
+}
+
 .panel-ask .question {
   width: 850px;
   padding-right: 15px
