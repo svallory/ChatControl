@@ -7,6 +7,13 @@
 // @grant        none
 // ==/UserScript==
 
+openTicketInNewTab = function() {
+  var num = prompt('Digite o número da pessoa');
+
+  if(num) {
+    window.open('http://elsevechatcontrol.dlapp.co/server/default/ticket/'+num)
+  }
+}
 
 var btnPanel = $('<div>', {
   id: 'ecci-buttons'
@@ -14,13 +21,18 @@ var btnPanel = $('<div>', {
 
 btnPanel.append(
   $('<button>', {
-    class: 'btn btn-sm btn-primary'
+    id: 'ecciOpenPersonBtn',
+    'class': 'btn btn-sm btn-primary'
   })
   .append('<i class="glyphicon glyphicon-user"')
   .append('Abrir Pessoa')
 );
 
-$('.navbar-header > .navbar-text').first().append(btnPanel);
+btnPanel
+  .appendTo($('.navbar-header > .navbar-text').first())
+  .ready(function() {
+    $('#ecciOpenPersonBtn').on('click', openTicketInNewTab);
+  })
 
 $.getScript('https://cdnjs.cloudflare.com/ajax/libs/keymaster/1.6.1/keymaster.min.js',
   function() {
@@ -34,12 +46,6 @@ $.getScript('https://cdnjs.cloudflare.com/ajax/libs/keymaster/1.6.1/keymaster.mi
       return false;
     });
 
-    key('⌘+p, ctrl+p', function() {
-      var num = prompt('Digite o número da pessoa');
-
-      if(num) {
-        window.open('http://elsevechatcontrol.dlapp.co/server/default/ticket/'+num)
-      }
-    });
+    key('⌘+p, ctrl+p', openTicketInNewTab);
   }
 )

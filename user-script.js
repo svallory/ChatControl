@@ -9,7 +9,7 @@
 
 // jQuery UI for fade out
 
-var baseUrl = 'https://raw.githubusercontent.com/svallory/ChatControl/master';
+var baseUrl = 'https://rawgit.com/svallory/ChatControl/master/';
 
 $('<link rel="stylesheet" href="'+baseUrl+'/dist/ecci.css" />').appendTo('head')
 $.getScript(baseUrl + '/dist/global.js')

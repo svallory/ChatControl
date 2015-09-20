@@ -1,21 +1,4 @@
 // ==UserScript==
-// @name         Elseve Chat Control Improvements
-// @namespace    http://saulovallory.com/
-// @version      0.1
-// @author       Saulo Vallory
-// @match        *://elsevechatcontrol.dlapp.co/server/default/ticket/*
-// @grant        none
-// ==/UserScript==
-
-// jQuery UI for fade out
-
-var baseUrl = 'https://raw.githubusercontent.com/svallory/ChatControl/master';
-
-$('<link rel="stylesheet" href="'+baseUrl+'/dist/ecci.css" />').appendTo('head')
-$.getScript(baseUrl + '/dist/global.js')
-$.getScript(baseUrl + '/dist/ticket.js')
-
-// ==UserScript==
 // @name         Elseve Chat Control Ticket Improvements
 // @namespace    http://saulovallory.com/
 // @version      0.2
@@ -26,7 +9,6 @@ $.getScript(baseUrl + '/dist/ticket.js')
 
 // jQuery UI for fade out
 $('head').append("<script src='http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.5/jquery-ui.min.js'></script>")
-//https://rawgit.com/svallory/ChatControl/master/helpers.js
 
 var defaultDiacriticsRemovalMap = [{
     'base': "A",

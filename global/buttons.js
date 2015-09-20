@@ -4,10 +4,15 @@ var btnPanel = $('<div>', {
 
 btnPanel.append(
   $('<button>', {
-    class: 'btn btn-sm btn-primary'
+    id: 'ecciOpenPersonBtn',
+    'class': 'btn btn-sm btn-primary'
   })
   .append('<i class="glyphicon glyphicon-user"')
   .append('Abrir Pessoa')
 );
 
-$('.navbar-header > .navbar-text').first().append(btnPanel);
+btnPanel
+  .appendTo($('.navbar-header > .navbar-text').first())
+  .ready(function() {
+    $('#ecciOpenPersonBtn').on('click', openTicketInNewTab);
+  })
