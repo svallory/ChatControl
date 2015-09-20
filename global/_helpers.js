@@ -4,4 +4,6 @@ openTicketInNewTab = function() {
   if(num) {
     window.open('http://elsevechatcontrol.dlapp.co/server/default/ticket/'+num)
   }
+  
+  return false;
 }

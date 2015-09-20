@@ -8,4 +8,8 @@
 // ==/UserScript==
 
 // jQuery UI for fade out
-$('head').append("<script src='http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.5/jquery-ui.min.js'></script>")
+
+window.isTicketPage = RegExp('elsevechatcontrol.dlapp.co/server/default/ticket/').test(window.location.href);
+
+if(window.isTicketPage)
+  $('head').append("<script src='http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.5/jquery-ui.min.js'></script>")

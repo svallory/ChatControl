@@ -3,13 +3,15 @@
 // @namespace    http://saulovallory.com/
 // @version      0.1
 // @author       Saulo Vallory
-// @match        *://elsevechatcontrol.dlapp.co/server/default/ticket/*
+// @match        *://elsevechatcontrol.dlapp.co/*
 // @grant        none
 // ==/UserScript==
 
 // jQuery UI for fade out
 
 var baseUrl = 'https://rawgit.com/svallory/ChatControl/master/';
+
+baseUrl = 'http://localhost:4321';
 
 $('<link rel="stylesheet" href="'+baseUrl+'/dist/ecci.css" />').appendTo('head')
 $.getScript(baseUrl + '/dist/global.js')
