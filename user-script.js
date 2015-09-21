@@ -11,7 +11,7 @@
 
 var baseUrl = 'https://rawgit.com/svallory/ChatControl/master/';
 
-baseUrl = 'http://localhost:4321';
+//baseUrl = 'http://localhost:4321';
 
 $('<link rel="stylesheet" href="'+baseUrl+'/dist/ecci.css" />').appendTo('head')
 $.getScript(baseUrl + '/dist/global.js')
