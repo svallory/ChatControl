@@ -40,7 +40,7 @@ function addTicketBtn() {
 var btnExists = false;
 
 function startScript(){
-    if(document.body.contains('.chatlist') && !btnExists){
+    if(document.body.contains($('.chatlist')) && !btnExists){
         $('.chatlist').onclick = function(){
             window.setTimeout(addTicketBtn, 100);
             btnExists = true;
