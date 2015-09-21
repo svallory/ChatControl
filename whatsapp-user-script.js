@@ -37,10 +37,16 @@ function addTicketBtn() {
     title.appendChild(window.ticketButton);
 }
 
+var btnExists = false;
+
 function startScript(){
-    $('.chatlist').onclick = function(){
-        window.setTimeout(addTicketBtn, 100);
+    if(document.body.contains('.chatlist') && !btnExists){
+        $('.chatlist').onclick = function(){
+            window.setTimeout(addTicketBtn, 100);
+            btnExists = true;
+        }
     }
 }
 
-window.setTimeout(startScript, 6000);
+window.setInterval(startScript, 1000);
+window.start = startScript;
