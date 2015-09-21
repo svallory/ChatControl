@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Whatsapp web Elseve Chat Control Improvements
 // @namespace    http://saulovallory.com/
-// @version      0.2
+// @version      0.2.1
 // @author       Saulo Vallory
 // @match        *://web.whatsapp.com/*
 // @grant        none
