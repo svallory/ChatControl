@@ -13,6 +13,10 @@ var baseUrl = 'https://rawgit.com/svallory/ChatControl/master/';
 
 //baseUrl = 'http://localhost:4321';
 
+$.ajaxSetup({
+  cache: true
+});
+
 $('<link rel="stylesheet" href="'+baseUrl+'/dist/ecci.css" />').appendTo('head')
 $.getScript(baseUrl + '/dist/global.js')
 $.getScript(baseUrl + '/dist/ticket.js')
