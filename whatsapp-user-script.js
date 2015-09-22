@@ -44,9 +44,10 @@ function startScript(){
         $('.chatlist').onclick = function(){
             window.setTimeout(addTicketBtn, 100);
             btnExists = true;
+            window.clearInterval(scriptHandle);
         }
     }
 }
 
-window.setInterval(startScript, 1000);
+window.scriptHandle = window.setInterval(startScript, 1000);
 window.start = startScript;
