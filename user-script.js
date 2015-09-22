@@ -17,6 +17,6 @@ $.ajaxSetup({
   cache: true
 });
 
-$('<link rel="stylesheet" href="'+baseUrl+'/dist/ecci.css" />').appendTo('head')
-$.getScript(baseUrl + '/dist/global.js')
-$.getScript(baseUrl + '/dist/ticket.js')
+$('<link rel="stylesheet" href="'+baseUrl+'/dist/ecci.css" />').appendTo('head');
+$.getScript(baseUrl + '/dist/global.js');
+$.getScript(baseUrl + '/dist/ticket.js');
