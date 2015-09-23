@@ -12,7 +12,7 @@ window.$ = function(q) { return document.querySelector(q); }
 window.$$ = function(q) { return document.querySelectorAll(q); }
 
 var bt = document.createElement("button");
-bt.className = "btn btn-primary";
+bt.className = "btn btn-primary btn-ticket";
 bt.innerText = "Ticket";
 bt.setAttribute('style', 'position: absolute;right: 115px;top: 12px;');
 
@@ -37,14 +37,11 @@ function addTicketBtn() {
     title.appendChild(window.ticketButton);
 }
 
-var btnExists = false;
 
 function startScript(){
-    if($('.chatlist') && !btnExists){
+    if($('.chatlist') && !($('.btn-ticket'))){
         $('.chatlist').onclick = function(){
             window.setTimeout(addTicketBtn, 100);
-            btnExists = true;
-            window.clearInterval(scriptHandle);
         }
     }
 }
