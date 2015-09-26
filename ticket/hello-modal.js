@@ -37,7 +37,7 @@ $('<div id="hello-modal" class="modal fade">' +
           '</div>' +
           '<div class="modal-buttons">' +
             '<div class="form-group">' +
-              '<button id="btn-copy-hello-message" type="button" class="btn btn-success btn-lg col-md-4 col-md-push-4" id="btn-ok-new">' +
+              '<button id="btn-copy-hello-message" type="button" class="btn btn-success btn-lg col-md-8 col-md-push-2" id="btn-ok-new">' +
                 '<i class="fa fa-copy"></i>Copiar Mensagem' +
               '</button>' +
             '</div>' +
@@ -148,4 +148,17 @@ $('#btn-copy-hello-message').click(function(){
 })
 
 // Replace modal on ticket page
-// if($('body.modal-open').length > 0) replaceModal();
+if(window.isTicketPage) {
+  var modal = $('#modal-init-call');
+
+  modal.html($('#hello-modal').html());
+
+  modal.find('.user-id').text($('.client-name').data('id'));
+  modal.find('.user-name').val(firstName($('.client-name').data('name')));
+  modal.find('.user-phone').text($('.client-phone').text());
+
+  $('<div class="col-sm-4"><button class="btn btn-success btn-open-modal">Mensagem inicial</button></div>')
+  .insertAfter('.client-information');
+
+  $('.btn-open-modal').click(function(){ modal.modal(); });
+}
