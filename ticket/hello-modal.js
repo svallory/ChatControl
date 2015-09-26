@@ -54,11 +54,12 @@ $('<div id="hello-modal" class="modal fade">' +
 '</div>').appendTo('body');
 
 window.modals = window.modals || {};
-var modal = window.modals.hello = $('#hello-modal');
+var modal = window.modals.hello = $('#modal-init-call');
 
 // Replace modal on ticket page
 if(window.isTicketPage) {
-  var modal = $('#hello-modal');
+  modal = $('#modal-init-call');
+  modal.html($('#hello-modal').html());
 
   modal.find('.user-id').text($('.client-name').data('id'));
   modal.find('.user-name').val(firstName($('.client-name').data('name')));
@@ -67,9 +68,8 @@ if(window.isTicketPage) {
   $('<div class="col-sm-4"><button class="btn btn-success btn-open-modal">Mensagem inicial</button></div>')
   .insertAfter('.client-information');
 
-  $('#modal-init-call').html(modal.html());
-
-  $('.btn-open-modal').click(function(){ modal.modal(); });
+  $('.btn-open-modal').click(function(){ $('#modal-init-call').modal(); });
+  $('#modal-init-call .btn-copy-hello-message').click(getHelloMessage)
 }
 
 // OPEN modal
@@ -105,7 +105,7 @@ function openHelloModal(id) {
   });
 }
 
-$('#hello-modal').on('shown.bs.modal', function() {
+$('#modal-init-call').on('shown.bs.modal', function() {
   $(this).find('.user-name').select();
   $(this).find('.user-name').focus();
 });
@@ -148,7 +148,7 @@ $('#pending table').on('queue:update', updateBeginButtons);
 
 // COPY MESSAGE
 function getHelloMessage() {
-  var modal = $('#hello-modal');
+  var modal = $('#modal-init-call');
 
   data = {
     user: modal.find('.user-name').val(),
