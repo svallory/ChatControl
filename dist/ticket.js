@@ -542,7 +542,10 @@ $(document).ajaxComplete(function(event, xhr, settings) {
 });
 
 // HIDDEN IFRAME for opening
-$('<iframe id="openTicket" border=0 width=0 height=0></iframe>').appendTo('body')
+$('<iframe id="openTicket" border=0 width=0 height=0></iframe>').appendTo('body');
+
+// HIDDEN Message
+$('<div id="hidden-hello-msg" style="opacity:0; position: absolute; top: -9999px; left: -9999px;"></div>').appendTo('body');
 
 function ticketAlreadyOpen() {
   return /foi atendido/.test($('.alert-danger', $('iframe#openTicket').contents()).text());
@@ -551,6 +554,8 @@ function ticketAlreadyOpen() {
 function openTicket(id) {
   return $('iframe#openTicket').attr('src', 'http://elsevechatcontrol.dlapp.co/server/default/ticket/' + id);
 }
+
+
 
 //
 // HELLO MESSAGE MODAL
@@ -575,12 +580,11 @@ $('<div id="hello-modal" class="modal fade">' +
           '</div>' +
           '<div class="modal-buttons">' +
             '<div class="form-group">' +
-              '<button id="btn-copy-hello-message" type="button" class="btn btn-success btn-lg col-md-8 col-md-push-2" id="btn-ok-new">' +
+              '<button type="button" class="btn-copy-hello-message btn btn-success btn-lg col-md-8 col-md-push-2" id="btn-ok-new">' +
                 '<i class="fa fa-copy"></i>Copiar Mensagem' +
               '</button>' +
             '</div>' +
           '</div>' +
-          '<div id="hidden-hello-msg"></div>' +
         '</form>' +
       '</div>' +
     '</div>' +
@@ -589,6 +593,22 @@ $('<div id="hello-modal" class="modal fade">' +
 
 window.modals = window.modals || {};
 var modal = window.modals.hello = $('#hello-modal');
+
+// Replace modal on ticket page
+if(window.isTicketPage) {
+  var modal = $('#hello-modal');
+
+  modal.find('.user-id').text($('.client-name').data('id'));
+  modal.find('.user-name').val(firstName($('.client-name').data('name')));
+  modal.find('.user-phone').text($('.client-phone').text());
+
+  $('<div class="col-sm-4"><button class="btn btn-success btn-open-modal">Mensagem inicial</button></div>')
+  .insertAfter('.client-information');
+
+  $('#modal-init-call').html(modal.html());
+
+  $('.btn-open-modal').click(function(){ modal.modal(); });
+}
 
 // OPEN modal
 function openHelloModal(id) {
@@ -665,7 +685,7 @@ function updateBeginButtons() {
 $('#pending table').on('queue:update', updateBeginButtons);
 
 // COPY MESSAGE
-$('#btn-copy-hello-message').click(function(){
+function getHelloMessage() {
   var modal = $('#hello-modal');
 
   data = {
@@ -678,28 +698,15 @@ $('#btn-copy-hello-message').click(function(){
   var last = getCookie(cookies.LAST_HELLO_MSG) || 0;
 
   $('#hidden-hello-msg').text(template(helloMessages[last], data));
+
   copyText('#hidden-hello-msg');
 
   setCookie(cookies.LAST_HELLO_MSG, (last == length - 1 ? 0 : ++last));
 
   modal.modal('hide');
-})
-
-// Replace modal on ticket page
-if(window.isTicketPage) {
-  var modal = $('#modal-init-call');
-
-  modal.html($('#hello-modal').html());
-
-  modal.find('.user-id').text($('.client-name').data('id'));
-  modal.find('.user-name').val(firstName($('.client-name').data('name')));
-  modal.find('.user-phone').text($('.client-phone').text());
-
-  $('<div class="col-sm-4"><button class="btn btn-success btn-open-modal">Mensagem inicial</button></div>')
-  .insertAfter('.client-information');
-
-  $('.btn-open-modal').click(function(){ modal.modal(); });
 }
+
+$('.btn-copy-hello-message').click(getHelloMessage)
 
 if(window.isTicketPage) {
   // Item prototype
