@@ -1,3 +1,55 @@
+// No magic strings, please
+var cookies = {
+  ATTENDANT_NAME: 'attendant-name',
+  ATTENDANT_PHONE: 'attendant-phone',
+  LAST_HELLO_MSG: 'last-hello-msg-id'
+};
+
+window.setCookie = function setCookie(name, value) {
+  document.cookie = name.trim()+'='+$.trim(value);
+}
+
+window.getCookie = function getCookie(name) {
+  var cookies = document.cookie.split(';');
+  name = name.trim();
+
+  for(var i=0; i < cookies.length; i++) {
+    var split = cookies[i].split('=');
+    if(split[0].trim() == name)
+      return split[1].trim();
+  }
+
+  return null;
+}
+
+window.fixName = function fixName(name) {
+  if(name == '' || !name)
+    return name;
+  return name[0] + name.substr(1).toLowerCase();
+}
+
+window.template = function template(tpl, vars) {
+  var result = tpl;
+  var v;
+
+  for(var v in vars) {
+    result = result.replace(RegExp('\\{\\{'+v.toUpperCase()+'\\}\\}','g'), vars[v])
+  }
+
+  return result;
+}
+
+window.firstName = function(name) {
+  name = $.trim(name);
+
+  if(name == '')
+    return '';
+
+  name = name.split(' ')[0];
+
+  return name[0].toUpperCase() + name.substr(1).toLowerCase();
+}
+
 if(window.isTicketPage) {
   var defaultDiacriticsRemovalMap = [{
       'base': "A",

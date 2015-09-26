@@ -14,6 +14,58 @@ window.isTicketPage = RegExp('elsevechatcontrol.dlapp.co/server/default/ticket/'
 if(window.isTicketPage)
   $('head').append("<script src='http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.5/jquery-ui.min.js'></script>")
 
+// No magic strings, please
+var cookies = {
+  ATTENDANT_NAME: 'attendant-name',
+  ATTENDANT_PHONE: 'attendant-phone',
+  LAST_HELLO_MSG: 'last-hello-msg-id'
+};
+
+window.setCookie = function setCookie(name, value) {
+  document.cookie = name.trim()+'='+$.trim(value);
+}
+
+window.getCookie = function getCookie(name) {
+  var cookies = document.cookie.split(';');
+  name = name.trim();
+
+  for(var i=0; i < cookies.length; i++) {
+    var split = cookies[i].split('=');
+    if(split[0].trim() == name)
+      return split[1].trim();
+  }
+
+  return null;
+}
+
+window.fixName = function fixName(name) {
+  if(name == '' || !name)
+    return name;
+  return name[0] + name.substr(1).toLowerCase();
+}
+
+window.template = function template(tpl, vars) {
+  var result = tpl;
+  var v;
+
+  for(var v in vars) {
+    result = result.replace(RegExp('\\{\\{'+v.toUpperCase()+'\\}\\}','g'), vars[v])
+  }
+
+  return result;
+}
+
+window.firstName = function(name) {
+  name = $.trim(name);
+
+  if(name == '')
+    return '';
+
+  name = name.split(' ')[0];
+
+  return name[0].toUpperCase() + name.substr(1).toLowerCase();
+}
+
 if(window.isTicketPage) {
   var defaultDiacriticsRemovalMap = [{
       'base': "A",
@@ -329,6 +381,311 @@ if(window.isTicketPage) {
       });
   });
 }
+
+//
+// ATTENDANT DATA MODAL
+//
+
+$('<div id="attendant-modal" class="modal fade">' +
+    '<div class="modal-dialog">' +
+      '<div class="modal-content">' +
+        '<div class="modal-header">' +
+          '<h4 class="modal-title text-center">' +
+            'Dados da atendente'+
+          '</h4>' +
+        '</div>' +
+        '<div class="modal-body text-center">' +
+          '<form name="attendant" class="form-horizontal">' +
+            '<div class="attendant-info">' +
+              '<div class="form-group">' +
+                '<label for="attendant-name" class="col-sm-2 control-label">Nome</label>' +
+                '<div class="col-sm-10">' +
+                  '<input id="attendant-name" class="form-control" value="{{USER}}" placeholder="Nome" required /><br>' +
+                '</div>' +
+              '</div>' +
+              '<div class="form-group">' +
+                '<label for="attendant-name" class="col-sm-2 control-label">Telefone</label>' +
+                '<div class="col-sm-10">' +
+                  '<div class="input-group">' +
+                    '<span class="input-group-addon">+55 (21)</span>' +
+                    '<input id="attendant-phone" class="form-control" value="{{PHONE}}" required />' +
+                  '</div>' +
+                '</div>' +
+            '</div>' +
+            '<div class="modal-buttons">' +
+              '<div id="errors"></div>' +
+              '<div class="form-group">' +
+                '<button id="save-attendant" class="btn btn-success btn-md col-sm-4 col-sm-push-4">' +
+                  '<i class="fa fa-floppy-o"></i>Salvar' +
+                '</button>' +
+              '</div>' +
+            '</div>' +
+          '</form>' +
+        '</div>' +
+      '</div>' +
+    '</div>' +
+  '</div>').appendTo('body');
+
+$('#attendant-phone').focus(function() { $(this).select(); });
+
+$('#attendant-modal').on('show.bs.modal', function (e) {
+  var phone = getCookie(cookies.ATTENDANT_PHONE) || '';
+
+  if(phone != '')
+    phone = phone.substr(-10);
+
+  $(this).find('#attendant-name').val(getCookie(cookies.ATTENDANT_NAME));
+  $(this).find('#attendant-phone').val(phone);
+
+});
+
+$('#attendant-modal').on('shown.bs.modal', function() {
+  if($(this).find('#attendant-phone').val() != '')
+    $(this).find('#attendant-phone').focus();
+});
+
+window.modals = window.modals || {};
+window.modals.attendant = $('#attendant-modal');
+
+// OPEN attendant modal button
+$('#ecci-buttons').append(
+  $('<button id="open-attendant-modal" class="btn btn-warning">Dados da Atendente</button>')
+);
+
+$('#open-attendant-modal').click(function() {
+  window.modals.attendant.modal();
+})
+
+// SAVE attendant data
+function saveAttendantData(evt) {
+  var modal = window.modals.attendant;
+
+  var name = modal.find('#attendant-name').val().trim();
+  var phone = modal.find('#attendant-phone').val().replace(/[^0-9]/g,'');
+
+  var errors = [];
+
+  if(name == '')
+    errors.push('O <strong>nome</strong> é obrigatório');
+
+  if(phone == '')
+    errors.push('O <strong>Telefone</strong> é obrigatório');
+  else if(phone.length != 9)
+    errors.push('Telefone inválido');
+
+  if(errors.length > 0) {
+    modal.find('#errors').html(
+      '<div class="alert alert-danger text-left" role="alert">' +
+        errors.reduce(function(all, curr){ return all + '<div><i class="fa fa-exclamation-circle"></i> ' + curr + '</div>' }, '') +
+      '</div>');
+    evt.preventDefault();
+    return false;
+  }
+
+  phone = '(21) ' + phone.substr(0, 5) + '-' + phone.substr(5);
+
+  setCookie(cookies.ATTENDANT_NAME, name);
+  setCookie(cookies.ATTENDANT_PHONE, phone);
+
+  evt.preventDefault();
+  modal.modal('hide');
+  return false;
+}
+
+$('#save-attendant').click(saveAttendantData);
+
+// UTILS
+window.getAttendantData = function getAttendantData() {
+  if(!getCookie() || !getCookie())
+    modals.attendantData.modal('show');
+
+  return {
+    atendente: getCookie('atendente'),
+    phone: getCookie('phone')
+  }
+}
+
+window.helloMessages = [
+  "Olá, {{USER}}.\nMeu nome é {{ATTENDANT}}, Somos especialistas em controle do cabelo.\nPor favor, adicione esse número, {{PHONE}}, aos seus contatos e me diga como podemos ajudá-la.",
+  "Boa tarde, {{USER}}.\nSou {{ATTENDANT}} e estamos muito satisfeitos em ter você aqui, no Chat Control. Por favor, adicione {{PHONE}}, aos seus contato e estamos prontas para te ajudar.",
+  "Boa tarde, {{USER}}.\nSou a {{ATTENDANT}} e estamos muito satisfeitos em ter você aqui, no Chat Control. Coloque o número {{PHONE}} nos seus contatos e aproveite para tirar dúvidas sobre como manter o poder do controle nas suas mãos.",
+  "Bem-vinda ao Chat Control, {{USER}}.\nSou {{ATTENDANT}} e estou aqui para ajudá-la a manter o controle supremo sobre os cabelos. Como podemos ajudar? Adicione o número {{PHONE}} nos seus contatos para começarmos nossa conversa.",
+  "Olá, {{USER}}\nQue bom ter você aqui no Chat Control. Meu nome é {{ATTENDANT}}. Por favor, Adicione o número {{PHONE}} para falarmos.",
+  "É muito bom ter você no Elseve Chat Control, {{USER}}.\nComo podemos ajudá-la? a especialista em Elseve, {{ATTENDANT}} do Chat Control vai conversar com você. Para continuar a conversa, adicione esse número, {{PHONE}}, aos seus contatos e continue a conversa.",
+  "Olá {{USER}}, bem vinda ao Chat Control, nossa especialista em Elseve que vai conversar com você é a {{ATTENDANT}}, adicione esse número, {{PHONE}}, aos seus contatos para continuar a conversa. Obrigada.",
+  "Bem vinda {{USER}}, somos do Chat Control, a especialista em Elseve {{ATTENDANT}} vai conversar com você, adicione esse número, {{PHONE}}, aos seus contatos para continuar a conversa.",
+  "Bom dia {{USER}}, a especialista em Elseve, {{ATTENDANT}} do Chat Control vai conversar com você. Para continuar a conversa, adicione esse número, {{PHONE}}, aos seus contatos e continue a conversa.",
+  "Oi {{USER}}, a {{ATTENDANT}}, especialista em Elseve do Chat Control, vai conversar com você para tirar dúvidas e dar dicas sobre cabelos difíceis de controlar. Para começar a conversa, adicione esse número, {{PHONE}}, aos seus contatos.",
+  "Olá, {{USER}}. Estamos contentes em ter você aqui no Chat Control, serviço de atendimento de Elseve Supreme Control 4D para ajuda-lá a ter controle sobre seus cabelos. Para tirar suas dúvidas comigo, {{ATTENDANT}}, adicione esse número, {{PHONE}}, aos seus contatos ;)",
+  "Oi, {{USER}}. Este é o Chat Control, um serviço de atendimento de Elseve Supreme Control 4D para te ajudar a ter controle sobre seus cabelos. Para conversar com nossa especialista {{ATTENDANT}}, adicione esse número, {{PHONE}}, aos seus contatos. Obrigada.",
+  "{{USER}}, seja bem-vinda ao Chat Control. Sou especialista em controle de cabelo e estou à disposição para tirar suas dúvidas. Para que a gente possa conversar, adicione esse número, {{PHONE}}, aos seus contatos ;)",
+  "Olá, {{USER}}.  Este é um serviço de atendimento de Elseve Supreme Control 4D, uma nova linha de produtos que oferece ação anti-frizz, anti-fios rebeldes, anti-efeito armado e controle do volume por até 48h. Para esclarecer suas dúvidas sobre cabelos, adicione esse número, {{PHONE}}, aos seus contatos ;)",
+  "Olá, {{USER}}. Você se cadastrou no Chat Control, um serviço de atendimento de Elseve Supreme Control 4D, nova linha de produtos que oferece ação anti-frizz, anti-fios rebeldes, anti-efeito armado e controle do volume. Se eu puder te ajudar com alguma dúvida sobre seus cabelos, adicione esse número, {{PHONE}}, aos seus contatos ;)",
+  "Seja bem-vinda ao Chat Control, {{USER}}. Se quiser tirar dúvidas sobre os seus cabelos, por favor adicione esse número, {{PHONE}}, aos seus contatos ;)",
+  "Boa tarde, {{USER}}. Seja bem-vinda ao Chat Control, um serviço de atendimento de Elseve Supreme Control 4D, nova linha de produtos que oferece ação anti-frizz, anti-fios rebeldes, anti-efeito armado e controle do volume. Quer conversar sobre seus cabelos? Então adicione esse número,  {{PHONE}}, aos seus contatos ;)",
+  "Seja bem-vinda ao Chat Controle, um serviço de atendimento de Elseve Supreme Control 4D para te ajudar a ter controle sobre seus cabelos. Quer descobrir como? Então adicione esse número, {{PHONE}}, aos seus contatos, e vamos conversar!",
+  "Oi, {{USER}}. A especialista em Elseve {{ATTENDANT}}, do Chat Control, está aqui para tirar suas dúvidas sobre seus cabelos. Para continuar a conversa, adicione esse número, {{PHONE}}, aos seus contatos.",
+  "Oi, {{USER}}, seja bem-vinda ao Chat Control! Nossa especialista em Elseve que vai conversar com você é a {{ATTENDANT}}; adicione esse número, {{PHONE}}, aos seus contatos para continuar a conversa. Obrigada.",
+  "Oi, {{USER}}. Bem-vinda ao Chat Control, um serviço de atendimento de Elseve Supreme Control 4D, nova linha de produtos que oferece ação anti-frizz, anti-fios rebeldes, anti-efeito armado e controle do volume. Nossa especialista em Elseve que vai conversar com você é a {{ATTENDANT}} -  adicione esse número, {{PHONE}}, aos seus contatos para continuar a conversa. Obrigada.",
+  "Bem vinda, {{USER}}, somos do Chat Control. Para conversar com a especialista em Elseve {{ATTENDANT}}, adicione esse número, {{PHONE}}, aos seus contatos ;)",
+  "Olá, {{USER}}. A especialista em Elseve {{ATTENDANT}}, aqui do Chat Control, está a postos para tirar suas dúvidas sobre  cabelos. Para continuar a conversa, adicione esse número, {{PHONE}}, aos seus contatos!",
+  "Oi, {{USER}}. A {{ATTENDANT}}, especialista em Elseve do Chat Control, está aqui para esclarecer dúvidas e dar dicas sobre cabelos difíceis de controlar. Para começar a conversa, adicione esse número, {{PHONE}}, aos seus contatos.",
+  "Olá {{USER}}, que bom ter você aqui no Chat Control, nosso time especialista da Elseve vai conversar com você. Sua atendente é a {{ATTENDANT}}, adicione esse número, {{PHONE}} aos seus contatos para continuar a conversa. Obrigada.",
+  "{{USER}}, seja bem vinda ao nosso Chat Control, a especialista em Elseve {{ATTENDANT}} vai conversar com você hoje, adicione esse número, {{PHONE}}, aos seus contatos e tire todas suas duvidas sobre cabelo.",
+  "Bom dia {{USER}}, a nossa equipe especialista em Elseve quer ajudar você. A {{ATTENDANT}} do Chat Control que vai atende-la. Para continuar a conversa, adicione esse número aos seus contatos: {{PHONE}}.",
+  "{{USER}} é um prazer ter você no Chat Control, a {{ATTENDANT}} especialista em Elseve, vai conversar com você para tirar todas suas dúvidas e dar dicas sobre cabelos. Para começar a conversa, adicione esse número aos seus contatos: {{PHONE}}"
+]
+
+// FIRST: Hook into live queue updates
+$(document).ajaxComplete(function(event, xhr, settings) {
+  if(settings.url == 'ws/queue') $('#pending table').trigger('queue:update');
+});
+
+// HIDDEN IFRAME for opening
+$('<iframe id="openTicket" border=0 width=0 height=0></iframe>').appendTo('body')
+
+function ticketAlreadyOpen() {
+  return /foi atendido/.test($('.alert-danger', $('iframe#openTicket').contents()).text());
+}
+
+function openTicket(id) {
+  return $('iframe#openTicket').attr('src', 'http://elsevechatcontrol.dlapp.co/server/access') //  http://elsevechatcontrol.dlapp.co/server/default/ticket/' + id);
+}
+
+//
+// HELLO MESSAGE MODAL
+//
+$('<div id="hello-modal" class="modal fade">' +
+  '<div class="modal-dialog">' +
+    '<div class="modal-content">' +
+      '<div class="modal-header">' +
+        '<h4 class="modal-title text-center">' +
+          'Cheque o nome do contato<br/>'+
+          '<small>Se preciso, edite <strong>antes</strong> de copiar a mensagem.</small>' +
+        '</h4>' +
+      '</div>' +
+      '<div class="modal-body text-center">' +
+        '<form class="form-horizontal">' +
+          '<div class="form-group">' +
+            '<label class="user-id col-sm-5 control-label">{{TICKET}}</label>' +
+            '<div class="col-sm-4">' +
+              '<input class="user-name form-control" value="{{USER}}" />' +
+            '</div>' +
+            '<p class="form-control-static user-phone col-sm-12">{{USER_PHONE}}</p>' +
+          '</div>' +
+          '<div class="modal-buttons">' +
+            '<div class="form-group">' +
+              '<button id="btn-copy-hello-message" type="button" class="btn btn-success btn-lg col-md-4 col-md-push-4" id="btn-ok-new">' +
+                '<i class="fa fa-copy"></i>Copiar Mensagem' +
+              '</button>' +
+            '</div>' +
+          '</div>' +
+          '<div id="hidden-hello-msg"></div>' +
+        '</form>' +
+      '</div>' +
+    '</div>' +
+  '<div>' +
+'</div>').appendTo('body');
+
+window.modals = window.modals || {};
+var modal = window.modals.hello = $('#hello-modal');
+
+// OPEN modal
+function openHelloModal(id) {
+  var $row = $(this).parents('tr');
+  
+  openTicket(id).load(function() {
+    // Check if it's not already open by another attendant
+    var alreadyOpen = ticketAlreadyOpen();
+
+    if(alreadyOpen) {
+      var msg = $(
+        '<div class="alert alert-danger alert-fixed" role="alert">' +
+          'Esse ticket já foi aberto por outra atendente.' +
+        '</div>')
+      $('main > .container').append(msg);
+      msg.fadeOut(5000);
+    }
+    else {
+      var tds = $row.find('td');
+
+      var ticket = $row.data('id');
+      var user = firstName(tds[2].innerText.trim());
+      var phone = tds[3].innerText.trim();
+
+      modal.find('.user-id').text(ticket);
+      modal.find('.user-name').val(user);
+      modal.find('.user-phone').text(phone);
+
+      modal.modal();
+    }
+  });
+}
+
+$('#hello-modal').on('shown.bs.modal', function() {
+  $(this).find('.user-name').select();
+  $(this).find('.user-name').focus();
+});
+
+// UPDATE buttons
+function updateBeginButtons() {
+  var update = [];
+
+  $('.btn-begin').each(function() {
+    var $this = $(this);
+    var link = $this.attr('href');
+    var ticket = link.match('[0-9]+');
+    var parent = $this.parent();
+
+    $this.toggleClass('btn-lg btn-begin btn-open');
+    // really?
+    $this.attr('target', '_blank');
+    $this.html('<i class="fa fa-external-link"></i> Abrir</a>');
+
+    update.push($('<button>', {
+      class: 'btn-start btn btn-success btn-start',
+      'data-id': ticket
+    })
+    .text('Iniciar')
+    .prependTo($this.parent()))
+
+    parent.addClass('text-right');
+    parent.html(
+      '<div class="btn-group" role="group">' +
+      parent.html() +
+      '</div>'
+    )
+  });
+  // todo: Use update array
+  $('.btn-start').click(openHelloModal);
+}
+
+// update new tickets
+$('#pending table').on('queue:update', updateBeginButtons);
+
+// COPY MESSAGE
+$('#btn-copy-hello-message').click(function(){
+  var modal = $('#hello-modal');
+
+  data = {
+    user: modal.find('.user-name').val(),
+    attendant: getCookie(cookies.ATTENDANT_NAME),
+    phone: getCookie(cookies.ATTENDANT_PHONE)
+  }
+
+  var length = helloMessages.length;
+  var last = getCookie(cookies.LAST_HELLO_MSG) || 0;
+
+  $('#hidden-hello-msg').text(template(helloMessages[last], data));
+  copyText('#hidden-hello-msg');
+
+  setCookie(cookies.LAST_HELLO_MSG, (last == length - 1 ? 0 : ++last));
+
+  modal.modal('hide');
+})
+
+// Replace modal on ticket page
+// if($('body.modal-open').length > 0) replaceModal();
 
 if(window.isTicketPage) {
   // Item prototype
