@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Elseve Chat Control Ticket Improvements
 // @namespace    http://saulovallory.com/
-// @version      0.3
+// @version      0.3.1
 // @author       Saulo Vallory
 // @match        *://elsevechatcontrol.dlapp.co/server/default/ticket/*
 // @grant        none

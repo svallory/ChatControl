@@ -11,7 +11,7 @@ function ticketAlreadyOpen() {
 }
 
 function openTicket(id) {
-  return $('iframe#openTicket').attr('src', 'http://elsevechatcontrol.dlapp.co/server/access') //  http://elsevechatcontrol.dlapp.co/server/default/ticket/' + id);
+  return $('iframe#openTicket').attr('src', 'http://elsevechatcontrol.dlapp.co/server/default/ticket/' + id);
 }
 
 //
@@ -54,8 +54,15 @@ var modal = window.modals.hello = $('#hello-modal');
 
 // OPEN modal
 function openHelloModal(id) {
-  var $row = $(this).parents('tr');
-  
+  var $row = $('#pending tr[data-id="'+id+'"]');
+  var tds = $row.find('td');
+
+  var ticket = $row.data('id');
+  var user = firstName(tds[2].innerText.trim());
+  var phone = tds[3].innerText.trim();
+
+  $row.fadeOut(function(){ $(this).remove(); });
+
   openTicket(id).load(function() {
     // Check if it's not already open by another attendant
     var alreadyOpen = ticketAlreadyOpen();
@@ -69,12 +76,6 @@ function openHelloModal(id) {
       msg.fadeOut(5000);
     }
     else {
-      var tds = $row.find('td');
-
-      var ticket = $row.data('id');
-      var user = firstName(tds[2].innerText.trim());
-      var phone = tds[3].innerText.trim();
-
       modal.find('.user-id').text(ticket);
       modal.find('.user-name').val(user);
       modal.find('.user-phone').text(phone);
@@ -119,7 +120,7 @@ function updateBeginButtons() {
     )
   });
   // todo: Use update array
-  $('.btn-start').click(openHelloModal);
+  $('.btn-start').click(function(){ openHelloModal($(this).data('id')); });
 }
 
 // update new tickets
